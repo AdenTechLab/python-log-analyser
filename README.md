@@ -1,51 +1,51 @@
-# Python Log Analyser 🔍
+# Python Log Analyser
 
-A Python-based security log analysis tool that examines Linux authentication logs to identify failed login attempts, track successful logins and flag potentially suspicious IP addresses.
+A Python security tool for analysing Linux authentication logs, detecting failed login attempts and flagging potentially suspicious IP addresses.
 
-This project demonstrates practical Python scripting, Linux log analysis, automated testing and CI/CD using GitHub Actions.
+This project combines Python, Linux, Docker, security hardening, automated testing and CI/CD.
 
-## 🚀 Features
+## Overview
 
-- **Failed Login Detection:** Identifies failed SSH login attempts from authentication logs.
-- **Successful Login Tracking:** Counts successful password and public key logins.
-- **IP Address Analysis:** Groups failed login attempts by IP address.
-- **Suspicious IP Detection:** Flags IP addresses that reach a configurable failed-login threshold.
-- **Username Analysis:** Tracks failed login attempts by username.
-- **Custom Thresholds:** Choose how many failed attempts trigger an alert.
-- **Report Generation:** Displays a readable summary in the terminal and optionally saves it to a file.
-- **Automated Testing:** Uses pytest to verify the analysis functionality.
-- **CI/CD Pipeline:** GitHub Actions automatically runs the test suite when changes are pushed or pull requests are opened.
+- Detects failed and successful SSH login attempts.
+- Tracks failed logins by IP address and username.
+- Flags IP addresses that exceed a configurable threshold.
+- Generates reports in the terminal or saves them to a file.
+- Runs in a Docker container as a non-root user.
+- Uses GitHub Actions to run tests and build the Docker image.
 
-## 🛠️ Technologies Used
+## Tech Stack
 
-- Python 3
-- Linux authentication logs
-- Regular expressions
-- pytest
-- Git and GitHub
-- GitHub Actions (CI/CD)
+| Technology | Purpose |
+|---|---|
+| Python 3.12 | Log analysis and report generation |
+| Linux | Authentication log analysis |
+| Docker | Application containerisation |
+| pytest | Automated testing |
+| GitHub Actions | Continuous integration |
+| Git and GitHub | Version control |
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 python-log-analyser/
+├── .github/workflows/
+│   └── python-tests.yml
+├── sample_logs/
+│   └── auth.log
 ├── src/
 │   └── log_analyser.py
 ├── tests/
 │   └── test_log_analyser.py
-├── sample_logs/
-│   └── auth.log
-├── reports/
-├── .github/
-│   └── workflows/
-│       └── python-tests.yml
+├── reports/              # Generated reports
+├── .dockerignore
 ├── .gitignore
+├── Dockerfile
 ├── pytest.ini
 ├── requirements.txt
 └── README.md
 ```
 
-## ⚙️ Getting Started
+## Getting Started
 
 ### 1. Clone the repository
 
@@ -62,81 +62,120 @@ python -m pip install -r requirements.txt
 
 ### 3. Run the analyser
 
+Analyse the included sample log:
+
 ```bash
 python src/log_analyser.py
 ```
 
-The tool uses `sample_logs/auth.log` by default.
-
-### 4. Set a custom alert threshold
-
-For example, flag an IP address after two or more failed login attempts:
+Set a custom failed-login threshold:
 
 ```bash
 python src/log_analyser.py --threshold 2
 ```
 
-### 5. Save a report
+Save the report locally:
 
 ```bash
 python src/log_analyser.py --report reports/summary.txt
 ```
 
-### 6. Analyse a different log file
+## Docker
+
+### Build the image
 
 ```bash
-python src/log_analyser.py /path/to/auth.log
+docker build -t python-log-analyser:latest .
 ```
 
-Use a log file you are authorised to access.
+### Run the container
 
-## 🧪 Automated Testing
+```bash
+docker run --rm python-log-analyser:latest
+```
 
-Run the test suite locally:
+### Save a persistent report
+
+A bind mount makes reports available in your workspace after the container stops.
+
+```bash
+mkdir -p reports
+
+docker run --rm \
+  -v "$PWD/reports:/app/reports" \
+  python-log-analyser:latest \
+  python src/log_analyser.py \
+  --report /app/reports/summary.txt
+```
+
+View the report:
+
+```bash
+cat reports/summary.txt
+```
+
+## Container Security
+
+The Docker image runs the application as a dedicated non-root user named `appuser`, following the principle of least privilege.
+
+```dockerfile
+RUN useradd --create-home --uid 1000 appuser
+USER appuser
+```
+
+Verify the container user:
+
+```bash
+docker run --rm --entrypoint id python-log-analyser:latest
+```
+
+The expected UID is `1000`, rather than `0` (`root`).
+
+The report directory must be writable by the container user. The current Codespaces setup uses UID `1000` for both the host user and `appuser`.
+
+## Testing
+
+Run the automated test suite:
 
 ```bash
 python -m pytest -v
 ```
 
-The current test suite contains four tests covering:
+The four tests cover:
 
-- Counting failed and successful login attempts.
-- Flagging an IP address that reaches the alert threshold.
-- Ensuring IP addresses below the threshold are not flagged.
-- Handling an empty log file.
+1. Counting failed and successful logins.
+2. Flagging IP addresses at the configured threshold.
+3. Leaving IP addresses below the threshold unflagged.
+4. Handling empty log files.
 
-**Current status:** All four tests pass locally, and the GitHub Actions CI pipeline is green.
+**Current result:** 4 tests passing.
 
-## 🔄 CI/CD Pipeline
+## CI/CD
 
-GitHub Actions automatically runs the pytest suite when code is pushed to the `main` branch or a pull request targets `main`.
+GitHub Actions runs the workflow defined in `.github/workflows/python-tests.yml` when changes are pushed to `main` or a pull request targets `main`.
 
-This helps catch regressions and verifies that the automated tests continue to pass as the project evolves.
+The pipeline:
 
-## 🔐 Security Considerations
+1. Checks out the repository.
+2. Sets up Python 3.12.
+3. Installs dependencies.
+4. Runs the automated tests.
+5. Builds the Docker image.
 
-- This tool analyses log entries; it does not block IP addresses or prevent login attempts.
-- The included authentication logs are sample data for testing.
-- Real authentication logs may contain sensitive information. Handle them responsibly and only analyse files you are authorised to access.
-- Suspicious activity alerts are indicators for investigation, not proof of an attack.
+**Status:** The pipeline is passing. The image is built in CI but is not published to Docker Hub.
 
-## 🎯 Project Goals
+## Security Notes
 
-This project is part of my hands-on learning in Python, Linux, security automation and DevOps practices.
+- The analyser identifies potentially suspicious activity but does not block IP addresses.
+- Sample logs are provided for testing.
+- Only analyse real logs you are authorised to access.
+- Alerts indicate activity worth investigating, not proof of an attack.
+- Running as a non-root user reduces privileges but does not eliminate all container security risks.
 
-It helps develop practical skills in:
-
-- Python scripting and file handling.
-- Linux authentication log analysis.
-- Regular expressions and data aggregation.
-- Automated testing with pytest.
-- CI/CD automation with GitHub Actions.
-- Identifying potentially suspicious login activity.
-
-## 👨‍💻 Author
+## Author
 
 **Aden Ibrahim**
 
-GitHub: [@AdenTechLab](https://github.com/AdenTechLab)
+[GitHub: @AdenTechLab](https://github.com/AdenTechLab)
 
-Exploring DevOps, cloud infrastructure, Linux automation and DevSecOps through practical projects.
+Building practical projects in DevOps, cloud infrastructure, Linux automation and DevSecOps.
