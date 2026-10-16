@@ -1,7 +1,15 @@
-
+import importlib.util
 from pathlib import Path
 
-from log_analyser import analyse_log
+MODULE_PATH = (
+    Path(__file__).resolve().parents[1] / "src" / "log_analyser.py"
+)
+
+spec = importlib.util.spec_from_file_location("log_analyser", MODULE_PATH)
+log_analyser = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(log_analyser)
+
+analyse_log = log_analyser.analyse_log
 
 
 def test_counts_failed_and_successful_logins(tmp_path):

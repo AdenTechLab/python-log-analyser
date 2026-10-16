@@ -1,0 +1,5 @@
+Linux Authentication Log Report
+Log lines analysed: 9
+Failed logins: 4
+Successful logins: 2
+Suspicious IPs: {'192.168.1.50': 4}

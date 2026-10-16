@@ -1,0 +1,9 @@
+
+Oct 16 08:01:12 server sshd[1201]: Failed password for invalid user admin from 192.168.1.50 port 50231 ssh2
+Oct 16 08:01:15 server sshd[1202]: Failed password for invalid user admin from 192.168.1.50 port 50232 ssh2
+Oct 16 08:01:18 server sshd[1203]: Failed password for root from 192.168.1.50 port 50233 ssh2
+Oct 16 08:02:01 server sshd[1204]: Accepted publickey for aden from 192.168.1.20 port 50240 ssh2
+Oct 16 08:03:22 server sshd[1205]: Failed password for user test from 10.0.0.15 port 50241 ssh2
+Oct 16 08:04:10 server sshd[1206]: Connection closed by authenticating user aden 192.168.1.20 port 50242 [preauth]
+Oct 16 08:05:45 server sshd[1207]: Failed password for invalid user guest from 192.168.1.50 port 50243 ssh2
+Oct 16 08:06:03 server sshd[1208]: Accepted password for aden from 192.168.1.20 port 50244 ssh2
