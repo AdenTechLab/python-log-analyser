@@ -36,7 +36,7 @@ python-log-analyser/
 │   └── log_analyser.py
 ├── tests/
 │   └── test_log_analyser.py
-├── reports/              # Generated reports
+├── reports/ # Generated reports
 ├── .dockerignore
 ├── .gitignore
 ├── Dockerfile
